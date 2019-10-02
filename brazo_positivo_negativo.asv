@@ -1,0 +1,127 @@
+%---------Bloque para reestablecer matlab a su forma inicial---------------
+clear all % Se encarga de borrar las variables en el workspace  
+clc % Se encarga de borrar el todo lo que se observa en la ventana de comandos
+close all % Se encarga de cerrar las ventanas que se tienen abiertas
+%--------------------------------------------------------------------------
+
+%--------------------------------------------------------------------------
+%---------Bloque para insertar los datos de los ángulos y longitudes de la
+%articulacion uno y dos del robot------------------------------------------
+angdeg = input('Ingresa los grados que deseas rotar la primera aticulacón:\n');
+L1= input('Ingresa la longitud para la articulación 1:\n');
+
+angdeg2 = input('Ingresa los grados que deseas rotar la segunda aticulacón:\n');
+L2= input('Ingresa la longitud para la articulacón 2:\n');
+%--------------------------------------------------------------------------
+
+%--------------------------------------------------------------------------
+%-------Bloque de conversión de los ángulos a radianes---------------------
+angrad = deg2rad(angdeg); % se encarga de convertir los grados de la 
+                          % articulación 1 a radianes 
+angrad2 = deg2rad(angdeg2);% se encarga de convertir los grados de la 
+                          % articulación 2 a radianes 
+% Se realiza la conversión porque matlab no puede leer grados matlab solo
+% puede trabajar con radianes, y esa conversión la guardamos en unas
+% variables.
+%--------------------------------------------------------------------------
+
+%--------------------------------------------------------------------------
+%------Bloque de funcion printAxis Para establecer y trazar lso ejes-------
+printAxis() % Esta función fue creada en otro script con el código para 
+            % establecer los ejes del plano carteciano, los cuales por el 
+            % por el momento son el eje X y el eje Y
+%--------------------------------------------------------------------------
+
+%--------------------------------------------------------------------------
+%--------Bloque del punto de origen establecido como un vector renglón-----
+p1=[0 0 0]'; % Se coloca el punto principal en cero en el eje X,Y,Z para
+             % que sea el punto de partida y se realiza su transpuesta 
+             % para que se genere un vector columna y sea una matriz de 3x1
+             % y se pueda multiplicar por otra matriz
+%--------------------------------------------------------------------------           
+             
+%--------------------------------------------------------------------------
+%-----Bloque de condición para realizar rotacion positiva y negativa de la
+% primera articulación-----------------------------------------------------
+if angdeg>=0 % Sí el ángulo es mayor o igual a 0 hace la siguiente acción 
+    angVec = 0:0.01:angrad % El ángulo del vector va incrementar en 0.01°
+                           % desde 0 hasta el águlo indicado por el usuario
+                           % sobre el eje positivo.
+                           
+else  % Sí no cumple la condición realiza lo siguiente 
+    
+    angVec =0:-0.01:angrad % El ángulo del vector va a decrementar en -0.01°
+                           % desde 0 hasta el águlo indicado por el usuario
+                           % sobre el eje negativo.
+end
+%--------------------------------------------------------------------------
+
+%--------------------------------------------------------------------------
+%-----bloque de ciclo for para realizar la animación e ir imprimiendo las 
+% lineas de la rotación de la articulación 1-------------------------------
+for  i=1:length(angVec) % Se encarga de realizar una animación de la 
+                        % primera articulación  que va incrementando desde
+                        % 1 hasta el ángulo que el usuario introdujo en 
+                        % angdeg con un incremento 0.01 en 
+                        % la primera articulación
+                        
+    clf % Se encarga de ir borrando cada uno de los trazos realizados para
+        % para que se observe el efector final y no se vean todas las 
+        % impresiones
+        
+    printAxis() % Esta función fue creada en otro script con el código para 
+              % establecer los ejes del plano carteciano, los cuales por el 
+              % por el momento son el eje X y el eje Y
+              
+    TRz1 = [ cos(angVec(i)) -sin(angVec(i)) 0 0 ; sin(angVec(i)) cos(angVec(i)) 0 0 ; 0 0 1 0;  0 0 0 1 ]
+           % Se colocó la matriz de rotación en el eje Z, y se encarga de 
+           % ir realizando la rotación en Z de uno hasta el ángulo
+           % requerido de 0.01 en 0.01
+           
+    TTx1 = [ 1 0 0 L1; 0 1 0 0; 0 0 1 0; 0 0 0 1] % Se coloca la matriz 
+           % traslacion en el eje X dejando como variable L1 la cual será
+           % introducida por el usuario
+           
+    T1 = TRz1 * TTx1; % Se guarda en la variable T1 la multiplicación de la
+                      % matriz de rotación en el eje Z y la matriz de 
+                      % traslación en el eje X para poder crear una matriz
+                      % de transformacion homogenea y poder realizar la
+                      % impresión de las lineas
+                      
+    p2 = T1 (1:3,4); % Se encarga de tomar la posicion final de la matriz 
+                     % T1 recuperando  el valor 1 hasta el 3 de la columna
+                     % 4
+                     
+    line([p1(1) p2(1)],[p1(2) p2(2)],[p1(3) p2(3)]) % Se realiza la impres-
+                     % ión final del eslabon 1 
+    
+%--------------------------------------------------------------------------
+%------------Bloque de articulación 2 en estado inicial--------------------
+    TRz2 = [ cos(0) -sin(0) 0 0 ; sin(0) cos(0) 0 0 ; 0 0 1 0; 0 0 0 1 ]
+           % Se colocó la matriz de rotación en el eje Z, y se encarga de 
+           % ir realizando la rotación en Z de uno hasta el ángulo
+           % requerido de 0.01 en 0.01
+           
+    TTx2 = [ 1 0 0 L2; 0 1 0 0; 0 0 1 0; 0 0 0 1]
+           % traslacion en el eje X dejando como variable L2 la cual será
+           % introducida por el usuario
+           
+    T2 = TRz2 * TTx2 % Se guarda en la variable T1 la multiplicación de la
+                     % matriz de rotación en el eje Z y la matriz de 
+                     % traslación en el eje X para poder crear una matriz
+                     % de transformacion homogenea y poder realizar la
+                     % impresión de las lineas
+    
+    Tf = T1*T2 % Se encarga de realizar el efector final o punto final
+    
+    p3 = Tf (1:3,4); % Se encarga de tomar la posicion final de la matriz 
+                     % Tf recuperando  el valor 1 hasta el 3 de la columna
+                     % 4
+    
+    line([p2(1) p3(1)],[p2(2) p3(2)],[p2(3) p3(3)],'color',[0 1 1]);
+                     % Se realiza la impresión final del eslabon 2 
+%--------------------------------------------------------------------------
+    pause(0.1)
+    
+end
+
